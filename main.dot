@@ -1,0 +1,10 @@
+digraph {
+	"main.c" -> "stdio.h";
+	"main.c" -> "dirent.h";
+	"main.c" -> "string.h";
+	"main.c" -> "stdlib.h";
+	"main.c" -> "ctype.h";
+	"test1.h" -> "test1.c";
+	"main.c" -> "test1.h";
+	"main.c" -> "test1 - Copy (2).h";
+}

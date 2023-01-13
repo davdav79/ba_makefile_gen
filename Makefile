@@ -2,10 +2,12 @@
 .PHONY: all
 CC=gcc
 CFLAGS=-pthread
-DEPS = test1.h
-OBJ = test1.c main.c
+DEPS=test1.h
+OBJ=main.c test1.c
 
 
-all:
-	$(CC) -o main $(OBJ) $(CFLAGS)
+all: main
 	./main
+
+main: $(OBJ) $(DEPS)
+	$(CC) -o main $(OBJ) $(CFLAGS)
