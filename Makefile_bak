@@ -4,8 +4,8 @@ CC=gcc
 
 ####################MAIN####################
 MAINCFLAGS=
-MAINDEPS= ./test1.h ./test/test1-Copy.h
-MAINOBJ= ./main.c ./test1.c
+MAINDEPS= test1.h
+MAINOBJ= main.c test1.c
 
 main: $(MAINOBJ) $(MAINDEPS)
 	$(CC) -o MAIN $(MAINOBJ) $(MAINCFLAGS)
