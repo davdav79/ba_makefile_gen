@@ -1,13 +1,26 @@
 .DEFAULT_GOAL := all
 .PHONY: all
-CC=gcc
+CFLAGS= -W -Wall -Wextra
 
-####################MAIN####################
-MAINCFLAGS=
-MAINDEPS= ./test1.h ./test/test1-Copy.h
-MAINOBJ= ./main.c ./test1.c
+all: makegen main3 main2 
 
-main: $(MAINOBJ) $(MAINDEPS)
-	$(CC) -o MAIN $(MAINOBJ) $(MAINCFLAGS)
+MAKEGENOBJ= ./linked_list.o ./make_helper.o ./dot_helper.o ./file_helper.o ./string_helper.o ./tree.o ./makegen.o 
 
-all: main
+./linked_list.h ./make_helper.h ./dot_helper.h ./file_helper.h ./string_helper.h ./tree.h 
+
+makegen.c: $(MAKEGEN) ($MAKEGEN)
+
+MAIN3OBJ= ./test/test1-Copy.o ./test1.o ./linked_list.o ./make_helper.o ./dot_helper.o ./file_helper.o ./string_helper.o ./tree.o ./main3.o 
+
+./test/wasd/wasd.h ./test/test1-Copy.h ./test1.h ./linked_list.h ./make_helper.h ./dot_helper.h ./file_helper.h ./string_helper.h ./tree.h 
+
+main3.c: $(MAIN3) ($MAIN3)
+
+MAIN2OBJ= ./test/test1-Copy.o ./test1.o ./linked_list.o ./make_helper.o ./dot_helper.o ./file_helper.o ./string_helper.o ./tree.o ./main2.o 
+
+./test/wasd/wasd.h ./test/test1-Copy.h ./test1.h ./linked_list.h ./make_helper.h ./dot_helper.h ./file_helper.h ./string_helper.h ./tree.h 
+
+main2.c: $(MAIN2) ($MAIN2)
+
+clean:
+	$(RM) makegen main3 main2 *.o

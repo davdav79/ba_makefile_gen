@@ -1,13 +1,23 @@
 .DEFAULT_GOAL := all
 .PHONY: all
-CC=gcc
+CFLAGS= -W -Wall -Wextra
+
+all: main main2 main3
 
 ####################MAIN####################
-MAINCFLAGS=
-MAINDEPS= test1.h
-MAINOBJ= main.c test1.c
+MAINOBJ= ./tree.c ./string_helper.c ./file_helper.c ./dot_helper.c ./make_helper.c ./test1.c ./test/test1-Copy.c
 
-main: $(MAINOBJ) $(MAINDEPS)
-	$(CC) -o MAIN $(MAINOBJ) $(MAINCFLAGS)
+main: $(MAINOBJ)
 
-all: main
+####################MAIN2####################
+MAIN2OBJ= ./tree.c ./string_helper.c ./file_helper.c ./dot_helper.c ./make_helper.c ./test1.c ./test/test1-Copy.c
+
+main2: $(MAIN2OBJ) 
+
+####################MAIN3####################
+MAIN3OBJ= ./tree.o ./string_helper.o ./file_helper.o ./dot_helper.o ./make_helper.o ./test1.c ./test/test1-Copy.o
+
+main3: $(MAIN3OBJ)
+
+clean:
+	 $(RM) main main2 main3 *.o

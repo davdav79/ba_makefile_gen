@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+*.png
+*.dot
+main2.c
+main3.c
+Makefile_
+Makefile_bak

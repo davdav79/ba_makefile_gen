@@ -5,6 +5,10 @@
         "string_view": "c",
         "test1.h": "c",
         "ctype.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "file_helper.h": "c",
+        "string_helper.h": "c",
+        "dot_helper.h": "c",
+        "stdio.h": "c"
     }
 }

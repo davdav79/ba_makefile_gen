@@ -1,13 +1,16 @@
 .DEFAULT_GOAL := all
 .PHONY: all
-CC=gcc
+CFLAGS= -W -Wall -Wextra
+
+all: makegen
 
 ####################MAIN####################
-MAINCFLAGS=
-MAINDEPS= ./test1.h ./test/test1-Copy.h ./test/wasd/wasd.h
-MAINOBJ= ./main.c ./test1.c ./test/test1-Copy.c
+MAINOBJ= ./string_helper.c ./file_helper.c ./dot_helper.c ./make_helper.c  ./test1.c  ./test/test1-Copy.c ./linked_list.c ./tree.c 
 
-main: $(MAINOBJ) $(MAINDEPS)
-	$(CC) -o MAIN $(MAINOBJ) $(MAINCFLAGS)
+makegen: $(MAINOBJ)
 
-all: main
+clean:
+	 $(RM) main main2 main3 *.o
+
+test: makegen
+	./makegen
