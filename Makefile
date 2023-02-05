@@ -4,13 +4,16 @@ CFLAGS= -W -Wall -Wextra
 
 all: makegen
 
-####################MAIN####################
-MAINOBJ= ./string_helper.c ./file_helper.c ./dot_helper.c ./make_helper.c  ./test1.c  ./test/test1-Copy.c ./linked_list.c ./tree.c 
+####################MAKEGEN####################
 
-makegen: $(MAINOBJ)
+MAKEGENOBJ= ./dot_helper.c ./tree.c ./string_helper.c ./file_helper.c ./make_helper.c ./linked_list.c 
+
+MAKEGENDEP= ./dot_helper.h ./tree.h ./string_helper.h ./file_helper.h ./make_helper.h 
+
+makegen: $(MAKEGENOBJ)
 
 clean:
-	 $(RM) main main2 main3 *.o
+	$(RM) main2 main3 makegen *.o
 
-test: makegen
+test: clean makegen 
 	./makegen

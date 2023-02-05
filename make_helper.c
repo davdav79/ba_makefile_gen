@@ -53,14 +53,15 @@ void print_make_body(FILE *fp,struct list_node *make_list){
     while(list_tmp != NULL){
         if(corh %2){
             make_tmp = list_get_last_node(list_tmp->data);
-            sprintf(name_upper, "%s",((struct node*)make_tmp->data)->name);
             sprintf(name_cut, "%s",((struct node*)make_tmp->data)->name);
             char *p;
-            p = strchr(name_upper, '.');
+            p = strchr(name_cut, '.');
             if (p != NULL) {
                 *p = 0;
             }
+            strcpy(name_upper, name_cut);
             to_upper(name_upper);
+            fprintf(fp,"####################%s####################\n\n",name_upper);
             fprintf(fp,"%sOBJ= ",name_upper);
         }else{
             fprintf(fp,"%sDEP= ",name_upper);
@@ -79,11 +80,17 @@ void print_make_body(FILE *fp,struct list_node *make_list){
             }
             fprintf(fp,"%s/%s ",((struct node*)make_tmp->data)->path, name);
             make_tmp = make_tmp->next;
+            if(corh %2){
+                if(make_tmp->next == NULL){
+                    break;
+                }
+            }
         }
         fprintf(fp,"\n\n");
         corh++;
         if(corh % 2){
-            fprintf(fp,"%s: $(%sOBJ) ($%sDEP)\n\n",name_cut,name_upper,name_upper);
+            //fprintf(fp,"%s: $(%sOBJ) ($%sDEP)\n\n",name_cut,name_upper,name_upper);
+            fprintf(fp,"%s: $(%sOBJ)\n\n",name_cut,name_upper,name_upper);
         }
         list_tmp = list_tmp->next;
     }

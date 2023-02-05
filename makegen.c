@@ -85,7 +85,7 @@ void in_order_traversal(FILE *dot_fp,struct list_node *make_list,struct node *ro
 }
 
 int main(){   
-    dotO = 1;
+    dotO = 0;
     struct list_node *source_files = NULL;
     struct list_node *main_files = NULL;
     parse_directory(".",&source_files,&main_files);
@@ -128,7 +128,7 @@ int main(){
         reset_duplicate(source_files);
         tmp_main_files = tmp_main_files->next;
     }
-    
+        printf("printing make\n");
         print_make(make_file,make_list);
 
     return 0;
