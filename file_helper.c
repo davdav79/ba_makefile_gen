@@ -32,17 +32,18 @@ void jump_to_eol(FILE *fp, int line_number) {
 
 //finds all #include <...> annd #include"..."  and if it doesent exist, adds it to the file list.
 char** parse_for_include(char *file_name, char *path){ 
-    char file_path[512];
+    char file_path[PATH_MAX+NAME_MAX];
     sprintf(file_path, "%s/%s",path,file_name);
     FILE *file = fopen(file_path, "r");
-    int file_count = 0, max_files = 1;
-    char **files = malloc(max_files * sizeof(char *));
     if (file == NULL) {
-        printf("Error: Could not open the file '%s'\n", file_path);
+        perror("Error:");
         return NULL;
     }
+    int file_count = 0, max_files = 1;
+    char **files = malloc(max_files * sizeof(char *));
+    
     // Read the file line by line
-    char line[256];
+    char line[1024];
     while (fgets(line, sizeof(line), file)) {
         // Check if the line is an include statement
         char *include_start = strstr(line, "#include");
@@ -110,7 +111,7 @@ void insert_include_file_list(struct node *root, char ** files, int is_main){
                 include_file = find_file(files[i], delim+1);
             }else{
                 char path[PATH_MAX+NAME_MAX];
-                sprintf(path, "%s/%s",root->path,files[i]);
+                sprintf(path, "%s/%s",root->path,files[i]); 
                 include_file = find_file(path, delim+1);
             }
             

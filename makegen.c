@@ -3,11 +3,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include "tree.h"
+#include <limits.h>
 #include "string_helper.h"
 #include "file_helper.h"
 #include "dot_helper.h"
 #include "make_helper.h"
 #include "linked_list.h"
+
 
 
 extern struct node **source_files;
@@ -53,7 +55,7 @@ int file_to_node(struct dirent *dir, char *path){
 //checks if the file contains a main function 
 int check_if_main(char * file_name, char *path){
     // Open the file
-    char file_path[512];
+    char file_path[PATH_MAX+NAME_MAX];
     sprintf(file_path, "%s/%s",path,file_name);
     FILE *file = fopen(file_path, "r");
 
