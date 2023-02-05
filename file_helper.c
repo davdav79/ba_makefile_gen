@@ -41,8 +41,11 @@ void parse_and_create_node(struct node* root, struct list_node **source_files,in
         printf("Error: Could not open the file '%s'\n", file_path);
         return;
     }
+    int file_count = 0, max_files = 1;
+    char **files = malloc(max_files * sizeof(char *));
+    
     // Read the file line by line
-    char line[256];
+    char line[1024];
     while (fgets(line, sizeof(line), file)) {
         // Check if the line is an include statement
         char *include_start = strstr(line, "#include");

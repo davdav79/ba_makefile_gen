@@ -38,7 +38,7 @@ FILE* print_dot_init(char *file_name){
 void exec_dot(char *file_name){
     //get file name without extension
     char tmp_file_name[NAME_MAX];
-    sprintf(tmp_file_name, "%s",file_name);
+    strcpy(tmp_file_name, file_name);
     char *dot;
     dot = strchr(tmp_file_name, '.');
     if (dot != NULL) {
@@ -46,7 +46,7 @@ void exec_dot(char *file_name){
     }
     
     int status;
-    char cmd[256];
+    char cmd[NAME_MAX+NAME_MAX+21];
     sprintf(cmd,"dot -Tpng %s.dot -o %s.png", tmp_file_name,tmp_file_name);
     printf("%s\n",cmd);
     status = system(cmd);
