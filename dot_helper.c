@@ -4,7 +4,16 @@
 void print_dot_node(FILE *fp, struct node *node, struct node *parent){
     if(parent->is_duplicate)
         return;
-    fprintf(fp, "\t\"%s/%s\" -> \"%s/%s\";\n",parent->path,parent->name,node->path,node->name);
+    if(strlen(parent->path) == 0){
+        fprintf(fp, "\t\"%s\" ",parent->name);
+    }else{
+        fprintf(fp, "\t\"%s/%s\" ",parent->path,parent->name);
+    }
+    if(strlen(node->path) == 0){
+        fprintf(fp, "-> \"%s\";\n",node->name);
+    }else{
+        fprintf(fp, "-> \"%s/%s\";\n",node->path,node->name);
+    }
     node->is_duplicate = 1;
 }
 

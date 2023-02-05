@@ -2,25 +2,25 @@
 .PHONY: all
 CFLAGS= -W -Wall -Wextra
 
-all: makegen main3 main2 
+all: main2 main3 makegen 
 
-MAKEGENOBJ= ./linked_list.o ./make_helper.o ./dot_helper.o ./file_helper.o ./string_helper.o ./tree.o ./makegen.o 
+MAIN2OBJ= ./dot_helper.o ./tree.o ./string_helper.o ./file_helper.o ./linked_list.o ./make_helper.o ./test1.o ./test/test1-Copy.o ./main2.o 
 
-./linked_list.h ./make_helper.h ./dot_helper.h ./file_helper.h ./string_helper.h ./tree.h 
+MAIN2DEP= ./dot_helper.h ./tree.h ./string_helper.h ./file_helper.h ./linked_list.h ./make_helper.h ./test1.h ./test/wasd/wasd.h ./test/test1-Copy.h 
 
-makegen.c: $(MAKEGEN) ($MAKEGEN)
+main2.c: $(MAIN2OBJ) ($MAIN2DEP)
 
-MAIN3OBJ= ./test/test1-Copy.o ./test1.o ./linked_list.o ./make_helper.o ./dot_helper.o ./file_helper.o ./string_helper.o ./tree.o ./main3.o 
+MAIN3OBJ= ./dot_helper.o ./tree.o ./string_helper.o ./file_helper.o ./make_helper.o ./linked_list.o ./main3.o 
 
-./test/wasd/wasd.h ./test/test1-Copy.h ./test1.h ./linked_list.h ./make_helper.h ./dot_helper.h ./file_helper.h ./string_helper.h ./tree.h 
+MAIN3DEP= ./dot_helper.h ./tree.h ./string_helper.h ./file_helper.h ./make_helper.h ./linked_list.h 
 
-main3.c: $(MAIN3) ($MAIN3)
+main3.c: $(MAIN3OBJ) ($MAIN3DEP)
 
-MAIN2OBJ= ./test/test1-Copy.o ./test1.o ./linked_list.o ./make_helper.o ./dot_helper.o ./file_helper.o ./string_helper.o ./tree.o ./main2.o 
+MAKEGENOBJ= ./dot_helper.o ./tree.o ./string_helper.o ./file_helper.o ./make_helper.o ./linked_list.o ./makegen.o 
 
-./test/wasd/wasd.h ./test/test1-Copy.h ./test1.h ./linked_list.h ./make_helper.h ./dot_helper.h ./file_helper.h ./string_helper.h ./tree.h 
+MAKEGENDEP= ./dot_helper.h ./tree.h ./string_helper.h ./file_helper.h ./make_helper.h ./linked_list.h 
 
-main2.c: $(MAIN2) ($MAIN2)
+makegen.c: $(MAKEGENOBJ) ($MAKEGENDEP)
 
 clean:
-	$(RM) makegen main3 main2 *.o
+	$(RM) main2 main3 makegen *.o

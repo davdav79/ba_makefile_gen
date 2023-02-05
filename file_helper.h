@@ -4,29 +4,27 @@
 #include <stdlib.h>
 #include "tree.h"
 #include "string_helper.h"
+#include "linked_list.h"
+#include <limits.h>
 
 
-struct node **source_files;
-struct node **main_files;
-int num_source_files;
-int num_main_files;
-int max_source_files;
-int max_main_files;
+struct list_node *source_files;
+struct list_node *main_files;
 
 void jump_to_line(FILE * fp, int line_number);
 
 void jump_to_eol(FILE *fp, int line_number);
 
-char **parse_for_include(char *file_name, char *path);
+void parse_and_create_node(struct node* root, struct list_node **source_files ,int is_main);
 
-struct node *find_file(char *path, char *file_name);
+struct node *find_file(char* name, struct list_node *list);
 
-void insert_include_file_list(struct node *root, char **files, int is_main);
+void insert_and_append_node(struct list_node **list,struct node* root, char* path_name, int is_main);
 
-int parse_directory(char *path);
+int parse_directory(char* path, struct list_node ** source_files, struct list_node ** main_files);
 
-void reset_duplicate();
+void reset_duplicate(struct list_node *list);
 
-int file_to_node(struct dirent *dir, char *path);
+int file_to_node(struct dirent *dir, char *path, struct list_node **source_files,struct list_node **main_files);
 
 int check_if_main(char * file_name, char *path);

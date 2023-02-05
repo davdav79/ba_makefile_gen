@@ -9,17 +9,10 @@
 #include "make_helper.h"
 #include "linked_list.h"
 
-
-extern struct node **source_files;
-extern struct node **main_files;
-extern int num_source_files;
-extern int num_main_files;
-extern int max_source_files;
-extern int max_main_files;
 extern int dotO;
 
 
-int file_to_node(struct dirent *dir, char *path){
+int file_to_node(struct dirent *dir, char *path, struct list_node **source_files,struct list_node **main_files){
     int endOfString = strlen(dir->d_name);
     if(dir->d_name[endOfString-1] != 'c'  && dir->d_name[endOfString-1] != 'h'){ //check if file does not end with c or h and skip
         return 1;
@@ -33,20 +26,11 @@ int file_to_node(struct dirent *dir, char *path){
     }
     if(dir->d_name[endOfString-1] == 'c'){
         if(0 == check_if_main(dir->d_name,path)){
-            if(num_main_files ==  max_main_files){
-                max_main_files = max_main_files * 2;
-                main_files = realloc(main_files,max_main_files * sizeof(struct node*));
-            }
-            main_files[num_main_files++] = new_node(dir->d_name, path, 5,1);
-            //printf("main file: %s\n",main_files[num_main_files-1]->name);
+            list_insert_node(main_files,(void*)new_node(dir->d_name, path, 1));
             return 0;
         }
     }
-    if(num_source_files ==  max_source_files){
-        max_source_files = max_source_files * 2;
-        source_files = realloc(source_files,max_source_files * sizeof(struct node*));
-    }
-    source_files[num_source_files++] = new_node(dir->d_name, path, 5,1);
+    list_insert_node(source_files,new_node(dir->d_name, path, 1));
     return 0;
 }
 
@@ -78,62 +62,73 @@ int check_if_main(char * file_name, char *path){
     return 1;
 }
 
+int comment_check(FILE* fp){
+    (void*)fp;
+    return 0;
+}
+
 // Traverse the tree in order and print the name of each node
-void in_order_traversal(FILE *dot_fp,struct list_node *make_list,struct node *root, int node) {
-  //printf("parent: %s, node: %d\n", parent,node);
+void in_order_traversal(FILE *dot_fp,struct list_node *make_list,struct node *root) {
   if (root != NULL) {
     // Traverse the leaves of the current node
-    list_make_node(make_list,root);
-    int i;
-    for (i = 0; i < root->num_leaves; i++) {
-        in_order_traversal(dot_fp,make_list,root->leaves[i], node);
-        print_dot_node(dot_fp,root->leaves[i],root);
+    make_list_node(make_list,root);
+    //printf("root: %s pntr:%ld\n",root->name, root);
+    struct list_node * leaf = ((struct list_node *)root->leaves);
+    while (NULL != leaf ) {
+        //printf("parend: %s %ld child: %s %ld\n", root->name, root, ((struct node*)leaf->data)->name, leaf);
+        in_order_traversal(dot_fp,make_list,leaf->data);
+        print_dot_node(dot_fp,((struct node *)leaf->data),root);
+        leaf = leaf->next;  
     }
   }
 }
 
-int main(){ 
-    num_source_files = 0;
-    num_main_files = 0;
-    max_source_files = 10;
-    max_main_files = 10;  
-    source_files = malloc(max_source_files * sizeof(struct node*));
-    main_files = malloc(max_main_files * sizeof(struct node*));
-    dotO = 1; 
-    char **include_file_list;
-    parse_directory(".");
-    for(int i = 0; i<num_source_files;i++){
-        include_file_list = parse_for_include(source_files[i]->name,source_files[i]->path);
-        insert_include_file_list(source_files[i],include_file_list,0);
-        //printf("in order traversal source files: %s \n", source_files[i]->name);
-        //in_order_traversal(source_files[i]);
+int main(){   
+    dotO = 1;
+    struct list_node *source_files = NULL;
+    struct list_node *main_files = NULL;
+    parse_directory(".",&source_files,&main_files);
+    struct list_node *tmp_source_files = source_files;
+    while(tmp_source_files != NULL){
+        parse_and_create_node(((struct node*)tmp_source_files->data),&source_files,0);
+        tmp_source_files = tmp_source_files->next;
     }
-    FILE * dot_file, *make_file;
-    
-    struct list_node *make_list = NULL; 
-    make_file = make_init();
-    for(int i = 0; i<num_main_files;i++){  
-        list_insert_list(&make_list);
-        list_insert_list(&make_list);
+    tmp_source_files = source_files;
+    printf("before files in src files\n");
+    /*while(tmp_source_files){
+        printf("files in source files: %s\n",((struct node*)tmp_source_files->data)->name);
+        struct list_node* leaf = (struct list_node*)((struct node*)tmp_source_files->data)->leaves;
+        while(leaf){
+            printf("\tchild: %s\n", ((struct node*)leaf->data)->name);
+            leaf =leaf->next;
+        }
+        tmp_source_files = tmp_source_files->next;
+    }*/
 
-        printf("main file: %s\n", main_files[i]->name); 
-        include_file_list = parse_for_include(main_files[i]->name,main_files[i]->path);
-    
-        insert_include_file_list(main_files[i],include_file_list,1);
-    
-        dot_file = print_dot_init(main_files[i]->name);
+    FILE * dot_file, *make_file;
+    struct list_node *make_list = NULL;
+    make_file = make_init();
+    struct list_node *tmp_main_files = main_files;
+    while(NULL != tmp_main_files){
+        list_insert_node(&make_list,NULL);
+        list_insert_node(&make_list,NULL);
+        printf("main file: %s\n", ((struct node*)tmp_main_files->data)->name); 
+        parse_and_create_node(((struct node*)tmp_main_files->data),&source_files,1);
+        dot_file = print_dot_init(((struct node*)tmp_main_files->data)->name);
         if(dot_file == NULL){
             return -1;
         }
-        //print_make_node_init(make_file,main_files[i]->name,i);
-        in_order_traversal(dot_file,make_list,main_files[i],i);
+        printf("iot\n");
+        in_order_traversal(dot_file,make_list,((struct node*)tmp_main_files->data));
+        //printf("%s\n",((struct node*)tmp_main_files->data)->name);
         fprintf(dot_file,"}\n");
         fclose(dot_file);
-        exec_dot(main_files[i]->name);
-        reset_duplicate();
+        exec_dot(((struct node*)tmp_main_files->data)->name);
+        reset_duplicate(source_files);
+        tmp_main_files = tmp_main_files->next;
     }
+    
         print_make(make_file,make_list);
-//TODO: output tree to makefile
 
     return 0;
 }

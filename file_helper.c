@@ -1,5 +1,4 @@
 #include "file_helper.h"
-#include <limits.h>
 
 void jump_to_line(FILE *fp, int line_number) {
     fseek(fp, 0, SEEK_SET);
@@ -31,15 +30,16 @@ void jump_to_eol(FILE *fp, int line_number) {
 }
 
 //finds all #include <...> annd #include"..."  and if it doesent exist, adds it to the file list.
-char** parse_for_include(char *file_name, char *path){ 
+void parse_and_create_node(struct node* root, struct list_node **source_files,int is_main){ 
     char file_path[512];
+    char *file_name = root->name;
+    char *path = root->path;
     sprintf(file_path, "%s/%s",path,file_name);
     FILE *file = fopen(file_path, "r");
-    int file_count = 0, max_files = 1;
-    char **files = malloc(max_files * sizeof(char *));
+    //printf("parent: path:%s name:%s\n",path,file_name);
     if (file == NULL) {
         printf("Error: Could not open the file '%s'\n", file_path);
-        return NULL;
+        return;
     }
     // Read the file line by line
     char line[256];
@@ -57,89 +57,79 @@ char** parse_for_include(char *file_name, char *path){
         // Extract the include file name from the line
         char *include_file = strstr(line, "<");
         char *include_file_end = NULL;
+        char tmp[2] = "";
         if(include_file != NULL){
             include_file_end = strstr(line, ">");
+            path = "";
         }
         else{
             include_file = strstr(line, "\"");
             include_file_end = strstr(include_file+1, "\"");
+            sprintf(tmp,"/");
         }
+        if(include_file == NULL)
+            continue;
         int include_file_len = include_file_end - include_file-1;
-        char include_file_name[include_file_len];
-        strncpy(include_file_name, include_file+1, include_file_len);
-        include_file_name[include_file_len] = '\0';
-
-        if(file_count ==  max_files){
-                max_files = max_files * 2;
-                files = realloc(files,max_files * sizeof(struct node*));
-        } 
-        files[file_count++] = malloc(NAME_MAX*sizeof(char));
-        strcpy(files[file_count-1], include_file_name);
-        //printf("include files %s/%s: %s\n",path,file_name,files[file_count-1]);
+        //char include_file_name[include_file_len];
+        char path_name[PATH_MAX+NAME_MAX];
+        include_file[include_file_len+1] = '\0';
+        sprintf(path_name,"%s%s%s",path,tmp,include_file+1);
+        insert_and_append_node(source_files,root,path_name,is_main);
     }
-    // add an empty node to indicate the end of the list
-    if(file_count ==  max_files){
-                max_files = max_files * 2;
-                files = realloc(files,max_files * sizeof(struct node*));
-    } 
-    files[file_count] = malloc(NAME_MAX*sizeof(char));
-    files[file_count] = 0;
-    return files;
+    /*printf("root name: %s\n", root->name);
+    while(root->leaves){
+        printf("\troot leave: %s\n",((struct node*)root->leaves->data)->name);
+        root->leaves = root->leaves->next;
+    }*/
 }
 
-struct node * find_file(char* path, char* file_name){
-    //printf("find file: %s_%s\n",path,file_name);
-    for(int i = 0; i < num_source_files;i++){
-        if(0 == strcmp(source_files[i]->name,file_name)){
-            if(0 == strcmp(source_files[i]->path,path)){
-                return source_files[i];
-            }
+
+void insert_and_append_node(struct list_node **list,struct node* root, char* path_name, int is_main){
+    
+    struct node *include_file;
+    char * delim = strrchr(path_name,'/');
+    if(delim){
+            path_name[delim-path_name] = '\0';
+            include_file = find_file(delim+1, *list);
+    }else{
+        include_file = find_file(path_name,*list);
+    }
+    if(NULL != include_file){
+        if('c' == (root->name[strlen(root->name)-1]) && 0 == is_main){
+            append_existing_node(include_file,root);
+        }else{
+            append_existing_node(root,include_file);
         }
+    }
+    else{
+        if(delim){
+            list_insert_node(list,new_node(delim+1, path_name, 0));
+            append_existing_node(root,((struct node*)((struct list_node*)*list)->data));
+        }else
+        {
+            list_insert_node(list,new_node(path_name, "", 0));   
+            append_existing_node(root,((struct node*)((struct list_node*)*list)->data));
+        }
+    }
+}
+
+struct node *find_file(char* name, struct list_node *list){
+    //printf("\tfind file: %s\n",path);
+    //printf("find_file path: %s name: %s\n", path, name);
+    while(NULL != list){
+        if(0 == strcmp( ((struct node*)list->data)->name,name)){
+            //printf("found file: %s/%s\n",((struct node*)list->data)->path,((struct node*)list->data)->name);
+            return ((struct node*)list->data);
+        }
+        list = list->next;
     }
     return NULL;
 }
-void insert_include_file_list(struct node *root, char ** files, int is_main){
-    int i = 0;
-    struct node * include_file = NULL;
-    char * delim = NULL;
-    while(files[i] != 0){
-        delim = strrchr(files[i],'/');
-        if(delim){
-            files[i][delim-files[i]] = '\0';
-            if('.' == files[i][0]){
-                include_file = find_file(files[i], delim+1);
-            }else{
-                char path[PATH_MAX+NAME_MAX];
-                sprintf(path, "%s/%s",root->path,files[i]);
-                include_file = find_file(path, delim+1);
-            }
-            
-        }else{
-            include_file = find_file(root->path,files[i]);
-        }
-        if(NULL != include_file){
-            if('c' == (root->name[strlen(root->name)-1]) && 0 == is_main){
-                insert_existing_node(include_file,root);
-            }else{
-                insert_existing_node(root,include_file);
-            }
-        }
-        else{
-            insert_new_node(root,files[i],".",5,0);
-        }
-        free(files[i]);
-        i++;
-    }
-    free(files[i]);
-    free(files);   
-}
-
-
 /// @brief parses the given directory, calls itself if it finds a directory or calls file_to_node if it finds a file
 /// @param path //path to the directory
 /// @return -1 when it cant open the directory 0 on success
 
-int parse_directory(char* path){
+int parse_directory(char* path, struct list_node ** source_files, struct list_node ** main_files){
     DIR *d;
     struct dirent *dir;
     d = opendir(path);
@@ -153,13 +143,13 @@ int parse_directory(char* path){
                 continue;
             char * new_path = malloc((strlen(path)+strlen(dir->d_name))*sizeof(char));
             sprintf(new_path,"%s/%s",path,dir->d_name);
-            if(parse_directory(new_path)< 0){
+            if(parse_directory(new_path, source_files, main_files)< 0){
                 free(new_path);
                 return -1;
             }
             free(new_path);
         }else if(DT_REG){
-            file_to_node(dir,path);
+            file_to_node(dir, path, source_files, main_files);
         }
         
     }
@@ -167,8 +157,10 @@ int parse_directory(char* path){
     return 0;
 }
 
-void reset_duplicate(){
-    for(int i = 0; i<num_source_files;i++){
-        source_files[i]->is_duplicate = 0;
+void reset_duplicate(struct list_node *list){
+    while(list){
+        ((struct node *)list->data)->is_duplicate = 0;
+        //printf("\treset dupe: %s is dupe: %d\n",((struct node *)list->data)->name,((struct node *)list->data)->is_duplicate);
+        list = list->next;
     }
 }

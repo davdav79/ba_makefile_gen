@@ -9,6 +9,8 @@
         "file_helper.h": "c",
         "string_helper.h": "c",
         "dot_helper.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "linked_list.h": "c",
+        "make_helper.h": "c"
     }
 }
