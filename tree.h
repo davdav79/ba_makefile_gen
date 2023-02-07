@@ -15,8 +15,6 @@ struct node {
 
 struct node *new_node(char* name,char *path, int is_local);
 
-int insert_new_node(struct node *head, char* name, char *path, int is_local);
-
 int append_existing_node(struct node *head, struct node* node);
 
-void link_node(struct node*head, struct node* node);
+void in_order_traversal(FILE *dot_fp,struct list_node *make_list,struct node *root);

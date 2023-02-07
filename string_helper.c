@@ -24,3 +24,46 @@ int whitespace_check(char* line_start, char* found_location){
     }
     return 0;
 }
+
+int check_if_comment(char last_char,char line,int *block_comment){
+    if(1 == *block_comment){
+        if('*' == last_char && '/' == line){
+            *block_comment = 0;
+            return 1;
+        }else{
+            return 1;
+        }
+    }
+    if('/' == last_char){
+        if('/' == line){
+            last_char = '\0';
+            return 2;
+        }else if('*' == line){
+            *block_comment = 1;
+        }
+    }
+    return 0;
+}
+int check_if_string_literal(char last_char, char line, int *string_double, int *string_single ){
+    if('\\' != last_char){
+        if(0 == *string_double){
+            if('\"' == line){
+                *string_double = 1;
+                return 1;
+            }
+            if('\'' == line){
+                *string_single = 1;
+                return 1;
+            }
+        }else{
+            if('\"' == line){
+                *string_double = 0;
+            }
+            if('\'' == line){
+                *string_single = 0;
+            }
+        return 1;
+        }
+    }
+    return 0;
+}

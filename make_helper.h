@@ -7,10 +7,10 @@
 #include "string_helper.h"
 #include "file_helper.h"
 #include "linked_list.h"
-
+#include "argp_helper.h"
 int dotO;
+struct arguments arguments;
 
-//void print_make_node_init(struct list_list *make_list, char *name_ex);
 void make_list_node(struct list_node *make_list, struct node *node);
 void print_make(FILE *fp,struct list_node *make_list);
 FILE *make_init();
