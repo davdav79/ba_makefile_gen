@@ -29,12 +29,12 @@ void jump_to_eol(FILE *fp, int line_number) {
     }
 }
 
-//finds all #include <...> annd #include"..."  and if it doesent exist, adds it to the file list.
 void parse_for_insert_and_create_node(struct node** root, struct list_node **source_files){ 
     // Open the file
     char file_path[PATH_MAX+NAME_MAX];
     char *file_name = (*root)->name;
     char *path = (*root)->path;
+    struct list_node *file_list = NULL;
     sprintf(file_path, "%s/%s",path,file_name);
     FILE *file = fopen(file_path, "r");
     if (file == NULL) {
@@ -43,6 +43,8 @@ void parse_for_insert_and_create_node(struct node** root, struct list_node **sou
     }
     // Read the file line by line
     char line_array[2048];
+    char search[2][10] = {"voidmain(", "intmain("};
+    int search_cnt[2] = {0,0};
     char search_include[10] = {"#include"};
     int search_include_cnt = 0;
     char last_char = '\0';
@@ -75,6 +77,18 @@ void parse_for_insert_and_create_node(struct node** root, struct list_node **sou
                 line++;
                 continue;
             }
+
+            //searching for main function
+            for(int i = 0; i<2; i++){
+                if(search[i][search_cnt[i]] == *line){
+                    search_cnt[i]++;
+                    if(search_cnt[i] == (int)strlen(search[i])){
+                        (*root)->is_main = 1;
+                    }
+                }else{
+                    search_cnt[i] = 0;
+                }
+            }
             //searching for include
             if(search_include[search_include_cnt] == *line){
                 search_include_cnt++;
@@ -98,25 +112,33 @@ void parse_for_insert_and_create_node(struct node** root, struct list_node **sou
                     char *found_include = malloc((len+2)*sizeof(char));
                     strncpy(found_include,include_start,len);
                     *(found_include+len) = '\0';
-                    char path_name[PATH_MAX+NAME_MAX];
+                    char *path_name = NULL;
                     if(('\"' == cmp_char) && ('.' != *found_include)){
+                        path_name = malloc((strlen(path)+ strlen(found_include)+2)*sizeof(char));
                         sprintf(path_name,"%s/%s",path,found_include); 
                     }else{
+                        path_name = malloc((strlen(found_include)+2)*sizeof(char));
                         sprintf(path_name,"%s",found_include);
+                        
                     }
-                    insert_and_append_node(source_files,*root,path_name);
                     free(found_include);
+                    list_insert_node(&file_list,path_name);
                     search_include_cnt = 0;
                 }
             }else{
                 search_include_cnt = 0;
             }
-            //searching for external lib
 
             last_char = *line;
             line++;
         }
     }
+    while(file_list != NULL){
+        insert_and_append_node(source_files,*root,(char*)file_list->data);
+        free(file_list->data);
+        list_remove_node(&file_list);
+    }
+    
     return;
 }
 
@@ -151,7 +173,7 @@ void insert_and_append_node(struct list_node **list,struct node* root, char* pat
 
 struct node *find_file(char* name, struct list_node *list){
     while(NULL != list){
-        printf("find file:%s,%s\n",((struct node*)list->data)->name,name);
+        //printf("find file:%s,%s\n",((struct node*)list->data)->name,name);
         if(0 == strcmp( ((struct node*)list->data)->name,name)){
             return ((struct node*)list->data);
         }
@@ -169,12 +191,6 @@ int file_to_node(struct dirent *dir, char *path, struct list_node **source_files
     }     
     if(dir->d_name[0] == '.' ){ //ignore hidden files
         return 1;
-    }
-    if(dir->d_name[endOfString-1] == 'c'){
-        if(check_if_main(dir->d_name, path) == 0){
-            list_insert_node(source_files,new_node(dir->d_name, path, 1,1));
-            return 0;
-        }
     }
     list_insert_node(source_files,new_node(dir->d_name, path, 1,0));
     return 0;
@@ -222,66 +238,4 @@ void reset_duplicate(struct list_node *list){
         //printf("\treset dupe: %s is dupe: %d\n",((struct node *)list->data)->name,((struct node *)list->data)->is_duplicate);
         list = list->next;
     }
-}
-
-
-//checks if the file contains a main function 
-int check_if_main(char * file_name, char *path){
-    // Open the file
-    char file_path[PATH_MAX+NAME_MAX];
-    sprintf(file_path, "%s/%s",path,file_name);
-    FILE *file = fopen(file_path, "r");
-    if (file == NULL) {
-        perror("Error: Could not open file");
-        return 2;
-    }
-        // Read the file line by line
-    char line_array[2048];
-    char search[2][10] = {"voidmain(", "intmain("};
-    int search_cnt[2] = {0,0};
-    char last_char = '\0';
-    char * line = NULL;
-    int comment = 0, block_comment = 0,string_double = 0,string_single = 0;
-
-    while (fgets(line_array, sizeof(line_array), file)) {
-        line = line_array;
-        while('\0' != *line){
-            //ignore whitespaces
-            if(isspace(*line)){
-                line++;
-                continue;
-            }
-            //ignore for comments
-            if(0 == string_double && 0 == string_single ){
-                comment = check_if_comment(last_char,*line,&block_comment);
-                if(2 == comment){
-                    last_char = '\n';
-                    break;
-                }else if(1 == comment){
-                    last_char = *line;
-                    line++;
-                    continue;                
-                }
-            }
-            //ignore string literals
-            if(check_if_string_literal(last_char,*line,&string_double,&string_single)){
-                last_char = *line;
-                line++;
-                continue;
-            }
-            for(int i = 0; i<2; i++){
-                if(search[i][search_cnt[i]] == *line){
-                    search_cnt[i]++;
-                    if(search_cnt[i] == (int)strlen(search[i])){
-                        return 0;
-                    }
-                }else{
-                    search_cnt[i] = 0;
-                }
-            }
-            last_char = *line;
-            line++;
-        }
-    }
-    return 1;
 }

@@ -1,0 +1,24 @@
+.DEFAULT_GOAL := all
+.PHONY: all
+CFLAGS= -W -Wall -Wextra
+
+all: demo makegen 
+
+####################DEMO####################
+
+DEMOOBJ= ./string_helper.c ./linked_list.c ./tree.c 
+
+DEMOLIB= -lpthread 
+
+demo: $(DEMOOBJ) ($DEMOLIB)
+
+####################MAKEGEN####################
+
+MAKEGENOBJ= ./argp_helper.c ./make_helper.c ./dot_helper.c ./file_helper.c ./string_helper.c ./linked_list.c ./tree.c 
+
+MAKEGENLIB= 
+
+makegen: $(MAKEGENOBJ) ($MAKEGENLIB)
+
+clean:
+	$(RM) demo demo.png makegen makegen.png *.dot *.o

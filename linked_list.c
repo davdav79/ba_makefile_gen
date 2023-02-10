@@ -3,7 +3,6 @@
 
 void list_insert_node(struct list_node **head, void*data){
    if(head == NULL){
-      //fprintf(stderr,"Error: list_insert_node git a Null pointer for head\n");
       head = (struct list_node**) malloc(sizeof(struct list_node));
       *head = NULL;
    }
@@ -13,8 +12,6 @@ void list_insert_node(struct list_node **head, void*data){
    }else{
       temp->next = *head;
    }
-      
-   
    temp->data = data;
    *head = temp;
 }

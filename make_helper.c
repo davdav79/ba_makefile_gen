@@ -24,25 +24,19 @@ void make_list_node(struct list_node *make_list, struct node *node){
         return;
     if(node->name[strlen(node->name)-1] == 'c'){ //if the file is a .c it gets appended to obj
         list_insert_node((struct list_node **)&make_list->data,node);
-        printf("c new node:%s\n", ((struct node*)((struct list_node *)make_list->data)->data)->name);
     }
     struct list_node *node_list = node->leaves;
     while(node_list != NULL){
         for(int i=0;i<sizeof(libs)/sizeof(libs[0]);i++){
             if(strcmp(libs[i],((struct node*)node_list->data)->name) == 0){
-                printf("%s gefunden\n",libs[i]);
                 if(make_list->next->data == NULL){
-                    list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));  
-                    printf("new node_:%s\n", ((struct node*)((struct list_node *)make_list->next->data)->data)->name);
+                    list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));
                     return;
                 }
-                printf("vor find\n");
                 struct node* found = find_file(libs_name[i],(struct list_node *)make_list->next->data);
                 if(found)
-                    printf("nach find: %s\n", found->name);
                 if(found == NULL){
-                    list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));  
-                    printf("new node:%s\n", ((struct node*)((struct list_node *)make_list->next->data)->data)->name);
+                    list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));
                 }
                     
                 
@@ -143,10 +137,10 @@ void print_make_footer(FILE *fp,struct list_node *make_list){
         if (p != NULL) {
             *p = 0;
         }
-        fprintf(fp,"%s ",name_cut);
+        fprintf(fp,"%s %s.png ",name_cut,name_cut);
         list_tmp = list_tmp->next->next;
     }
-    fprintf(fp,"*.o");
+    fprintf(fp,"*.dot *.o");
 }
 void print_make(FILE *fp,struct list_node *make_list){
     printf("Generating Makefile\n");
