@@ -9,14 +9,23 @@
 #include "dot_helper.h"
 #include "make_helper.h"
 #include "argp_helper.h"
+#include "pthread.h"
+#include "math.h"
 
 const char *argp_program_version = "Version 1.0";
 const char *argp_program_bug_address = "https://github.com/davdav79/ba_makefile_gen/issues";
 
 extern int dotO;
 extern struct arguments arguments;
+void *thread_proc(void* x)
+{
+   printf ("sub thread.\n");
+   pthread_exit(NULL);
+}
 
 int main(int argc, char *argv[]){   
+    pthread_t t1;
+    int res = pthread_create(&t1, NULL, thread_proc, NULL);
     /* Our argp parser. */
     struct argp argp = {options, parse_opt, args_doc, doc, NULL, NULL, NULL};
     

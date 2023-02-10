@@ -1,5 +1,7 @@
 #pragma once
 #include <argp.h>
+#include "pthread.h"
+#include "math.h"
 
 /* The options we understand. */
 static struct argp_option options[] = {

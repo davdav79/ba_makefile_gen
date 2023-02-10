@@ -151,6 +151,7 @@ void insert_and_append_node(struct list_node **list,struct node* root, char* pat
 
 struct node *find_file(char* name, struct list_node *list){
     while(NULL != list){
+        printf("find file:%s,%s\n",((struct node*)list->data)->name,name);
         if(0 == strcmp( ((struct node*)list->data)->name,name)){
             return ((struct node*)list->data);
         }

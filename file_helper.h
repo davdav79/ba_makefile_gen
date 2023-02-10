@@ -6,7 +6,8 @@
 #include "string_helper.h"
 #include "linked_list.h"
 #include <limits.h>
-
+#include "pthread.h"
+#include "math.h"
 
 struct list_node *source_files;
 struct list_node *main_files;

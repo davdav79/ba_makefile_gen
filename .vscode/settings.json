@@ -14,6 +14,7 @@
         "make_helper.h": "c",
         "argp_helper.h": "c",
         "argp.h": "c",
-        "tree.h": "c"
+        "tree.h": "c",
+        "pthread.h": "c"
     }
 }

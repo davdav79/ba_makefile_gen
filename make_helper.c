@@ -16,14 +16,39 @@ FILE *make_init(){
 }
 
 void make_list_node(struct list_node *make_list, struct node *node){
+    char libs[2][16] = {"pthread.h", "math.h"};
+    char libs_name[2][16] = {"-lpthread", "-lm"};
     if(node->is_duplicate)
         return;
     if(0 == node->is_local)
         return;
     if(node->name[strlen(node->name)-1] == 'c'){ //if the file is a .c it gets appended to obj
         list_insert_node((struct list_node **)&make_list->data,node);
-    }else{ //if the file is a .h it gets appended to deps
-        list_insert_node((struct list_node **)&make_list->next->data,node);  
+        printf("c new node:%s\n", ((struct node*)((struct list_node *)make_list->data)->data)->name);
+    }
+    struct list_node *node_list = node->leaves;
+    while(node_list != NULL){
+        for(int i=0;i<sizeof(libs)/sizeof(libs[0]);i++){
+            if(strcmp(libs[i],((struct node*)node_list->data)->name) == 0){
+                printf("%s gefunden\n",libs[i]);
+                if(make_list->next->data == NULL){
+                    list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));  
+                    printf("new node_:%s\n", ((struct node*)((struct list_node *)make_list->next->data)->data)->name);
+                    return;
+                }
+                printf("vor find\n");
+                struct node* found = find_file(libs_name[i],(struct list_node *)make_list->next->data);
+                if(found)
+                    printf("nach find: %s\n", found->name);
+                if(found == NULL){
+                    list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));  
+                    printf("new node:%s\n", ((struct node*)((struct list_node *)make_list->next->data)->data)->name);
+                }
+                    
+                
+            }    
+        }
+        node_list = node_list->next;
     }
 }
 
@@ -66,7 +91,7 @@ void print_make_body(FILE *fp,struct list_node *make_list){
             fprintf(fp,"####################%s####################\n\n",name_upper);
             fprintf(fp,"%sOBJ= ",name_upper);
         }else{
-            fprintf(fp,"%sDEP= ",name_upper);
+            fprintf(fp,"%sLIB= ",name_upper);
         }
         make_tmp = list_tmp->data;     
         while(make_tmp != NULL){
@@ -80,9 +105,15 @@ void print_make_body(FILE *fp,struct list_node *make_list){
                     *(p+1) = 'o';
                 } 
             }
-            fprintf(fp,"%s/%s ",((struct node*)make_tmp->data)->path, name);
+            if(strlen(((struct node*)make_tmp->data)->path)>0)
+                fprintf(fp,"%s/%s ",((struct node*)make_tmp->data)->path, name);
+            else
+                fprintf(fp,"%s ", name);
             make_tmp = make_tmp->next;
             if(corh %2){
+                if(make_tmp == NULL){
+                    break;
+                }
                 if(make_tmp->next == NULL){
                     break;
                 }
@@ -91,8 +122,8 @@ void print_make_body(FILE *fp,struct list_node *make_list){
         fprintf(fp,"\n\n");
         corh++;
         if(corh % 2){
-            //fprintf(fp,"%s: $(%sOBJ) ($%sDEP)\n\n",name_cut,name_upper,name_upper);
-            fprintf(fp,"%s: $(%sOBJ)\n\n",name_cut,name_upper);
+            fprintf(fp,"%s: $(%sOBJ) ($%sLIB)\n\n",name_cut,name_upper,name_upper);
+            //fprintf(fp,"%s: $(%sOBJ)\n\n",name_cut,name_upper);
         }
         list_tmp = list_tmp->next;
     }
@@ -124,5 +155,5 @@ void print_make(FILE *fp,struct list_node *make_list){
     printf("Writing Makebody\n");
     print_make_body(fp,make_list);
     print_make_footer(fp,make_list);
-    printf("Writing Makefooter\n");
+    printf("Writing Makeheader\n");
 }

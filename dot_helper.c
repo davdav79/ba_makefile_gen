@@ -1,5 +1,6 @@
 #include "dot_helper.h"
-
+#include "pthread.h"
+#include "math.h"
 
 void print_dot_node(FILE *fp, struct node *node, struct node *parent){
     if(parent->is_duplicate)
