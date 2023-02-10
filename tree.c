@@ -1,14 +1,14 @@
 #include "tree.h"
 
 // Create a new node
-struct node *new_node(char* name,char *path, int is_local, int is_main) {
+struct node *new_node(char* name,char *path, bool is_local, bool is_main) {
   struct node *node = (struct node*) malloc(sizeof(struct node));
   strcpy(node->name, name);
   strcpy(node->path, path);
   node->leaves = NULL;
   node->is_local = is_local;
   node->is_main = is_main;
-  node->is_duplicate = 0;
+  node->is_duplicate = false;
   return node;
 }
 

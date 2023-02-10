@@ -3,18 +3,20 @@
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
+#include <stdbool.h>
 #include "linked_list.h"
+
 
 struct node {
   char name[NAME_MAX];
   char path[PATH_MAX];
   struct list_node *leaves;
-  int is_main;
-  int is_local;
-  int is_duplicate;
+  bool is_main;
+  bool is_local;
+  bool is_duplicate;
 };
 
-struct node *new_node(char* name,char *path, int is_local, int is_main);
+struct node *new_node(char* name,char *path, bool is_local, bool is_main);
 
 int append_existing_node(struct node *head, struct node* node);
 

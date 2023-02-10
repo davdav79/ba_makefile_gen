@@ -1,6 +1,8 @@
 #pragma once
 #include <argp.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 /* The options we understand. */
 static struct argp_option options[] = {
     {"output", 'o', "NAME", 0, "Write to a different File than Makefile",0},
@@ -13,7 +15,7 @@ static char doc[] = "A simple tool to generate Makefiles of c Projects.";
 
 /* A description of the arguments we accept. */
 static char args_doc[] = "";
-
+#pragma GCC diagnostic pop
 error_t parse_opt(int key, char *arg, struct argp_state *state);
 
 /* Used by main to communicate with parse_opt. */

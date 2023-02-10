@@ -27,7 +27,7 @@ FILE* print_dot_init(char *file_name){
     sprintf(dot_file_name,"%s.dot",dot_file_name);
     FILE* fp = fopen(dot_file_name, "w");
     if (fp == NULL) {
-        fprintf(stderr, "Error: Unable to create file '%s'\n", dot_file_name);
+        perror(dot_file_name);
         return NULL;
     } 
     fprintf(fp, "digraph {\n");  

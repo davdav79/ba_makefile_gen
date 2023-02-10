@@ -1,33 +1,5 @@
 #include "file_helper.h"
-
-void jump_to_line(FILE *fp, int line_number) {
-    fseek(fp, 0, SEEK_SET);
-    char buffer[1000];
-    int current_line = 1;
-    long pos = ftell(fp); // get the current position of the file pointer
-    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        if (current_line == line_number) {
-            fseek(fp, pos, SEEK_SET);
-            break;
-        }
-        current_line++;
-        pos = ftell(fp);
-    }
-}
-void jump_to_eol(FILE *fp, int line_number) {
-    fseek(fp, 0, SEEK_SET);
-    char buffer[1000];
-    int current_line = 1;
-    long pos = ftell(fp); // get the current position of the file pointer
-    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-        pos = ftell(fp);
-        if (current_line == line_number) {
-            fseek(fp, pos-1, SEEK_SET);
-            break;
-        }
-        current_line++;
-    }
-}
+#define MAXLINE 2048
 
 void parse_for_insert_and_create_node(struct node** root, struct list_node **source_files){ 
     // Open the file
@@ -42,7 +14,7 @@ void parse_for_insert_and_create_node(struct node** root, struct list_node **sou
         return;
     }
     // Read the file line by line
-    char line_array[2048];
+    char line_array[MAXLINE];
     char search[2][10] = {"voidmain(", "intmain("};
     int search_cnt[2] = {0,0};
     char search_include[10] = {"#include"};
@@ -213,7 +185,6 @@ int parse_directory(char* path, struct list_node ** source_files){
             if(dir->d_name[0] == '.')//to not get an infinite loop where we look into the current directory
                 continue;
             char * new_path = malloc((strlen(path)+strlen(dir->d_name)+1)*sizeof(char));
-            //printf("malloc%ld\n",new_path);
             sprintf(new_path,"%s/%s",path,dir->d_name);
             if(parse_directory(new_path, source_files) == -1){
                 free(new_path);
@@ -235,7 +206,6 @@ int parse_directory(char* path, struct list_node ** source_files){
 void reset_duplicate(struct list_node *list){
     while(list){
         ((struct node *)list->data)->is_duplicate = 0;
-        //printf("\treset dupe: %s is dupe: %d\n",((struct node *)list->data)->name,((struct node *)list->data)->is_duplicate);
         list = list->next;
     }
 }

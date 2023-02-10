@@ -8,11 +8,6 @@
 #include <limits.h>
 
 struct list_node *source_files;
-struct list_node *main_files;
-
-void jump_to_line(FILE * fp, int line_number);
-
-void jump_to_eol(FILE *fp, int line_number);
 
 void parse_for_insert_and_create_node(struct node** root, struct list_node **source_files);
 

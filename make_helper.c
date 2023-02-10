@@ -1,4 +1,5 @@
 #include "make_helper.h"
+#include <stdbool.h>
 
 FILE *make_init(){
     const char * cmd = {"mv Makefile_ Makefile_.bak"};
@@ -20,14 +21,14 @@ void make_list_node(struct list_node *make_list, struct node *node){
     char libs_name[2][16] = {"-lpthread", "-lm"};
     if(node->is_duplicate)
         return;
-    if(0 == node->is_local)
+    if( false == node->is_local)
         return;
     if(node->name[strlen(node->name)-1] == 'c'){ //if the file is a .c it gets appended to obj
         list_insert_node((struct list_node **)&make_list->data,node);
     }
     struct list_node *node_list = node->leaves;
     while(node_list != NULL){
-        for(int i=0;i<sizeof(libs)/sizeof(libs[0]);i++){
+        for(unsigned int i=0;i<sizeof(libs)/sizeof(libs[0]);i++){
             if(strcmp(libs[i],((struct node*)node_list->data)->name) == 0){
                 if(make_list->next->data == NULL){
                     list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));

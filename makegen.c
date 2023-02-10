@@ -15,6 +15,7 @@ const char *argp_program_bug_address = "https://github.com/davdav79/ba_makefile_
 
 extern int dotO;
 extern struct arguments arguments;
+extern char doc[];
 
 int main(int argc, char *argv[]){   
     /* Our argp parser. */
@@ -44,7 +45,6 @@ int main(int argc, char *argv[]){
     FILE * dot_file, *make_file;
     struct list_node *make_list = NULL;
     make_file = make_init();
-    struct list_node *tmp_main_files = main_files;
     while(NULL != tmp_source_files){
         if(((struct node*)tmp_source_files->data)->is_main){
         
