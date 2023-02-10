@@ -118,8 +118,11 @@ void print_make_footer(FILE *fp,struct list_node *make_list){
     fprintf(fp,"*.o");
 }
 void print_make(FILE *fp,struct list_node *make_list){
-    
+    printf("Generating Makefile\n");
+    printf("Writing Makeheader\n");
     print_make_header(fp,make_list);
+    printf("Writing Makebody\n");
     print_make_body(fp,make_list);
     print_make_footer(fp,make_list);
+    printf("Writing Makefooter\n");
 }

@@ -48,6 +48,7 @@ void exec_dot(char *file_name){
     int status;
     char cmd[NAME_MAX+NAME_MAX+21];
     sprintf(cmd,"dot -Tpng %s.dot -o %s.png", tmp_file_name,tmp_file_name);
+    printf("Generating dot file for: %s\n", tmp_file_name);
     printf("%s\n",cmd);
     status = system(cmd);
     if (status != 0) {

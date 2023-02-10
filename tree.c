@@ -1,12 +1,13 @@
 #include "tree.h"
 
 // Create a new node
-struct node *new_node(char* name,char *path, int is_local) {
+struct node *new_node(char* name,char *path, int is_local, int is_main) {
   struct node *node = (struct node*) malloc(sizeof(struct node));
   strcpy(node->name, name);
   strcpy(node->path, path);
   node->leaves = NULL;
   node->is_local = is_local;
+  node->is_main = is_main;
   node->is_duplicate = 0;
   return node;
 }
@@ -27,7 +28,6 @@ void in_order_traversal(FILE *dot_fp,struct list_node *make_list,struct node *ro
   if (root != NULL) {
     // Traverse the leaves of the current node
     make_list_node(make_list,root);
-    //printf("root: %s pntr:%ld\n",root->name, root);
     struct list_node * leaf = ((struct list_node *)root->leaves);
     while (NULL != leaf ) {
         //printf("parend: %s %ld child: %s %ld\n", root->name, root, ((struct node*)leaf->data)->name, leaf);

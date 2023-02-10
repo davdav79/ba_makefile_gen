@@ -9,11 +9,12 @@ struct node {
   char name[NAME_MAX];
   char path[PATH_MAX];
   struct list_node *leaves;
+  int is_main;
   int is_local;
   int is_duplicate;
 };
 
-struct node *new_node(char* name,char *path, int is_local);
+struct node *new_node(char* name,char *path, int is_local, int is_main);
 
 int append_existing_node(struct node *head, struct node* node);
 

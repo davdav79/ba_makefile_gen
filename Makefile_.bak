@@ -2,23 +2,7 @@
 .PHONY: all
 CFLAGS= -W -Wall -Wextra
 
-all: main2 main3 makegen 
-
-####################MAIN2####################
-
-MAIN2OBJ= ./dot_helper.c ./tree.c ./string_helper.c ./file_helper.c ./linked_list.c ./argp_helper.c ./make_helper.c ./test1.c ./test/test1-Copy.c 
-
-MAIN2DEP= ./dot_helper.h ./tree.h ./string_helper.h ./file_helper.h ./linked_list.h ./argp_helper.h ./make_helper.h ./test1.h ./test/wasd/wasd.h ./test/test1-Copy.h 
-
-main2: $(MAIN2OBJ)
-
-####################MAIN3####################
-
-MAIN3OBJ= ./dot_helper.c ./tree.c ./string_helper.c ./file_helper.c ./argp_helper.c ./make_helper.c ./linked_list.c 
-
-MAIN3DEP= ./dot_helper.h ./tree.h ./string_helper.h ./file_helper.h ./argp_helper.h ./make_helper.h ./linked_list.h 
-
-main3: $(MAIN3OBJ)
+all: makegen 
 
 ####################MAKEGEN####################
 
@@ -29,4 +13,4 @@ MAKEGENDEP= ./dot_helper.h ./tree.h ./string_helper.h ./file_helper.h ./linked_l
 makegen: $(MAKEGENOBJ)
 
 clean:
-	$(RM) main2 main3 makegen *.o
+	$(RM) makegen *.o

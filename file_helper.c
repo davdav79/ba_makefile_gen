@@ -30,57 +30,98 @@ void jump_to_eol(FILE *fp, int line_number) {
 }
 
 //finds all #include <...> annd #include"..."  and if it doesent exist, adds it to the file list.
-void parse_for_insert_and_create_node(struct node* root, struct list_node **source_files,int is_main){ 
-    char file_path[512];
-    char *file_name = root->name;
-    char *path = root->path;
+void parse_for_insert_and_create_node(struct node** root, struct list_node **source_files){ 
+    // Open the file
+    char file_path[PATH_MAX+NAME_MAX];
+    char *file_name = (*root)->name;
+    char *path = (*root)->path;
     sprintf(file_path, "%s/%s",path,file_name);
     FILE *file = fopen(file_path, "r");
-    //printf("parent: path:%s name:%s\n",path,file_name);
     if (file == NULL) {
-        perror("Error: Could not open the file");
+        perror("Error: Could not open file");
         return;
     }
     // Read the file line by line
-    char line[1024];
-    while (fgets(line, sizeof(line), file)) {
-        // Check if the line is an include statement
-        char *include_start = strstr(line, "#include");
-        if (include_start == NULL)
-            continue;
-        //check if #include is on the beginning of the line or has leading whitespaces
-        //http://public.beuth-hochschule.de/~kempfer/script_c/c.pdf seite 86/87
-        if((void*)&line != (void*)include_start) {
-            if(whitespace_check(line,include_start) == 1)
+    char line_array[2048];
+    char search_include[10] = {"#include"};
+    int search_include_cnt = 0;
+    char last_char = '\0';
+    char * line = NULL;
+    int comment = 0, block_comment = 0,string_double = 0,string_single = 0;
+    
+    while (fgets(line_array, sizeof(line_array), file)) {
+        line = line_array;
+        while('\0' != *line){
+            //ignore whitespaces
+            if(isspace(*line)){
+                line++;
                 continue;
+            }
+            //ignore for comments
+            if(0 == string_double && 0 == string_single ){
+                comment = check_if_comment(last_char,*line,&block_comment);
+                if(2 == comment){
+                    last_char = '\n';
+                    break;
+                }else if(1 == comment){
+                    last_char = *line;
+                    line++;
+                    continue;                
+                }
+            }
+            //ignore string literals
+            if(check_if_string_literal(last_char,*line,&string_double,&string_single)){
+                last_char = *line;
+                line++;
+                continue;
+            }
+            //searching for include
+            if(search_include[search_include_cnt] == *line){
+                search_include_cnt++;
+                if(search_include_cnt == (int)strlen(search_include)){
+                    while((*line != '\"') && (*line != '<')){
+                        last_char = *line;
+                        line++;
+                    }
+                    last_char = *line;
+                    line++;
+                    char *include_start = line, cmp_char ='\"';
+                    if('<' == last_char){
+                        cmp_char = '>';
+                    } 
+                    int len = 0;
+                    while(cmp_char != *line){
+                        len++;
+                        last_char = *line;
+                        line++;
+                    }
+                    char *found_include = malloc((len+2)*sizeof(char));
+                    strncpy(found_include,include_start,len);
+                    *(found_include+len) = '\0';
+                    char path_name[PATH_MAX+NAME_MAX];
+                    if(('\"' == cmp_char) && ('.' != *found_include)){
+                        sprintf(path_name,"%s/%s",path,found_include); 
+                    }else{
+                        sprintf(path_name,"%s",found_include);
+                    }
+                    insert_and_append_node(source_files,*root,path_name);
+                    free(found_include);
+                    search_include_cnt = 0;
+                }
+            }else{
+                search_include_cnt = 0;
+            }
+            //searching for external lib
+
+            last_char = *line;
+            line++;
         }
-        // Extract the include file name from the line
-        char *include_file = strstr(line, "<");
-        char *include_file_end = NULL;
-        char tmp[2] = "";
-        if(include_file != NULL){
-            include_file_end = strstr(line, ">");
-            path = "";
-        }
-        else{
-            include_file = strstr(line, "\"");
-            include_file_end = strstr(include_file+1, "\"");
-            sprintf(tmp,"/");
-        }
-        if(include_file == NULL)
-            continue;
-        int include_file_len = include_file_end - include_file-1;
-        //char include_file_name[include_file_len];
-        char path_name[PATH_MAX+NAME_MAX];
-        include_file[include_file_len+1] = '\0';
-        sprintf(path_name,"%s%s%s",path,tmp,include_file+1);
-        insert_and_append_node(source_files,root,path_name,is_main);
     }
+    return;
 }
 
 
-void insert_and_append_node(struct list_node **list,struct node* root, char* path_name, int is_main){
-    
+void insert_and_append_node(struct list_node **list,struct node* root, char* path_name){
     struct node *include_file;
     char * delim = strrchr(path_name,'/');
     if(delim){
@@ -90,7 +131,7 @@ void insert_and_append_node(struct list_node **list,struct node* root, char* pat
         include_file = find_file(path_name,*list);
     }
     if(NULL != include_file){
-        if('c' == (root->name[strlen(root->name)-1]) && 0 == is_main){
+        if(0 == root->is_main && ('c' == (root->name[strlen(root->name)-1]))){
             append_existing_node(include_file,root);
         }else{
             append_existing_node(root,include_file);
@@ -98,34 +139,30 @@ void insert_and_append_node(struct list_node **list,struct node* root, char* pat
     }
     else{
         if(delim){
-            list_insert_node(list,new_node(delim+1, path_name, 0));
+            list_insert_node(list,new_node(delim+1, path_name, 0,0));
             append_existing_node(root,((struct node*)((struct list_node*)*list)->data));
         }else
         {
-            list_insert_node(list,new_node(path_name, "", 0));   
+            list_insert_node(list,new_node(path_name, "", 0,0));
             append_existing_node(root,((struct node*)((struct list_node*)*list)->data));
         }
     }
 }
 
 struct node *find_file(char* name, struct list_node *list){
-    //printf("\tfind file: %s\n",path);
-    //printf("find_file path: %s name: %s\n", path, name);
     while(NULL != list){
         if(0 == strcmp( ((struct node*)list->data)->name,name)){
-            //printf("found file: %s/%s\n",((struct node*)list->data)->path,((struct node*)list->data)->name);
             return ((struct node*)list->data);
         }
         list = list->next;
     }
     return NULL;
 }
-int file_to_node(struct dirent *dir, char *path, struct list_node **source_files,struct list_node **main_files){
+int file_to_node(struct dirent *dir, char *path, struct list_node **source_files){
     int endOfString = strlen(dir->d_name);
     if(dir->d_name[endOfString-1] != 'c'  && dir->d_name[endOfString-1] != 'h'){ //check if file does not end with c or h and skip
         return 1;
     }
-
     if(dir->d_name[endOfString-2] != '.'){ //check if its not the actual file ending and skip
         return 1;
     }     
@@ -133,12 +170,12 @@ int file_to_node(struct dirent *dir, char *path, struct list_node **source_files
         return 1;
     }
     if(dir->d_name[endOfString-1] == 'c'){
-        if(0 == check_if_main(dir->d_name,path)){
-            list_insert_node(main_files,(void*)new_node(dir->d_name, path, 1));
+        if(check_if_main(dir->d_name, path) == 0){
+            list_insert_node(source_files,new_node(dir->d_name, path, 1,1));
             return 0;
         }
     }
-    list_insert_node(source_files,new_node(dir->d_name, path, 1));
+    list_insert_node(source_files,new_node(dir->d_name, path, 1,0));
     return 0;
 }
 
@@ -146,7 +183,7 @@ int file_to_node(struct dirent *dir, char *path, struct list_node **source_files
 /// @param path //path to the directory
 /// @return -1 when it cant open the directory 0 on success
 
-int parse_directory(char* path, struct list_node ** source_files, struct list_node ** main_files){
+int parse_directory(char* path, struct list_node ** source_files){
     DIR *d;
     struct dirent *dir;
     d = opendir(path);
@@ -161,13 +198,13 @@ int parse_directory(char* path, struct list_node ** source_files, struct list_no
             char * new_path = malloc((strlen(path)+strlen(dir->d_name)+1)*sizeof(char));
             //printf("malloc%ld\n",new_path);
             sprintf(new_path,"%s/%s",path,dir->d_name);
-            if(parse_directory(new_path, source_files, main_files) == -1){
+            if(parse_directory(new_path, source_files) == -1){
                 free(new_path);
                 return -1;
             }
             free(new_path);
         }else if(DT_REG){
-            file_to_node(dir, path, source_files, main_files);
+            file_to_node(dir, path, source_files);
         }
         
     }
@@ -217,6 +254,7 @@ int check_if_main(char * file_name, char *path){
             if(0 == string_double && 0 == string_single ){
                 comment = check_if_comment(last_char,*line,&block_comment);
                 if(2 == comment){
+                    last_char = '\n';
                     break;
                 }else if(1 == comment){
                     last_char = *line;

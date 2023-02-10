@@ -44,26 +44,26 @@ int check_if_comment(char last_char,char line,int *block_comment){
     }
     return 0;
 }
-int check_if_string_literal(char last_char, char line, int *string_double, int *string_single ){
+int check_if_string_literal(char last_char, char current_char, int *string_double, int *string_single ){
     if('\\' != last_char){
-        if(0 == *string_double){
-            if('\"' == line){
+        if(0 == *string_double && 0 == *string_single){
+            if( '\"' == current_char){
                 *string_double = 1;
                 return 1;
             }
-            if('\'' == line){
+            if( '\'' == current_char){
                 *string_single = 1;
                 return 1;
             }
-        }else{
-            if('\"' == line){
-                *string_double = 0;
-            }
-            if('\'' == line){
-                *string_single = 0;
-            }
-        return 1;
+        }
+        if(1 == *string_double && '\"' == current_char){
+            *string_double = 0;
+            return 0;
+        }
+        if(1 == *string_single && '\'' == current_char){
+            *string_single = 0;
+            return 0;
         }
     }
-    return 0;
+    return *string_double | *string_single;
 }
