@@ -55,5 +55,7 @@ dkms.conf
 *.dot
 main2.c
 main3.c
+.main2.c
+.main3.c
 Makefile_
 Makefile_bak
