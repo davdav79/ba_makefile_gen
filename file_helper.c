@@ -10,7 +10,7 @@ void parse_for_insert_and_create_node(struct node** root, struct list_node **sou
     sprintf(file_path, "%s/%s",path,file_name);
     FILE *file = fopen(file_path, "r");
     if (file == NULL) {
-        perror("Error: Could not open file");
+        perror(file_path);
         return;
     }
     // Read the file line by line
@@ -177,7 +177,7 @@ int parse_directory(char* path, struct list_node ** source_files){
     struct dirent *dir;
     d = opendir(path);
     if (!d) {
-        perror("Error: could not open the directory:");
+        perror(path);
         return -1;
     }
     while ((dir = readdir(d)) != NULL) {
