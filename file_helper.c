@@ -198,7 +198,7 @@ int parse_directory(char* path, struct list_node ** source_files){
     }
     closedir(d);
     if(*source_files == NULL){
-        fprintf(stderr,"Error: no project files in folder\n");
+        fprintf(stderr,"Error: no project files in folder: %s\n",path);
         return -2;
     }
     return 0;
