@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h> //FILE struct
+#include <stdbool.h>
 #include "tree.h"
 #include "string_helper.h"
 #include "file_helper.h"
