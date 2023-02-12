@@ -2,15 +2,7 @@
 .PHONY: all
 CFLAGS= -W -Wall -Wextra
 
-all: demo makegen 
-
-####################DEMO####################
-
-DEMOOBJ= ./demo.o 
-
-DEMOLIB= -lpthread 
-
-demo: $(DEMOOBJ) $(DEMOLIB)
+all: makegen 
 
 ####################MAKEGEN####################
 
@@ -21,4 +13,4 @@ MAKEGENLIB=
 makegen: $(MAKEGENOBJ) $(MAKEGENLIB)
 
 clean:
-	$(RM) demo demo.png makegen makegen.png *.dot *.o
+	$(RM) makegen makegen.png *.dot *.o Makefile.bak

@@ -30,7 +30,6 @@ void in_order_traversal(FILE *dot_fp,struct list_node *make_list,struct node *ro
     make_list_node(make_list,root);
     struct list_node * leaf = ((struct list_node *)root->leaves);
     while (NULL != leaf ) {
-        //printf("parend: %s %ld child: %s %ld\n", root->name, root, ((struct node*)leaf->data)->name, leaf);
         in_order_traversal(dot_fp,make_list,leaf->data);
         print_dot_node(dot_fp,((struct node *)leaf->data),root);
         leaf = leaf->next;  
