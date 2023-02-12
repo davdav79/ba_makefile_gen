@@ -51,6 +51,6 @@ void exec_dot(char *file_name){
     printf("%s\n",cmd);
     status = system(cmd);
     if (status != 0) {
-        fprintf(stderr, "Error: Unable to render tree\n");
+        fprintf(stderr, "Error: Unable to run dot and render tree\n");
     }
 }

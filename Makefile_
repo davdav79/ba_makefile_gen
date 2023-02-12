@@ -2,11 +2,11 @@
 .PHONY: all
 CFLAGS= -W -Wall -Wextra
 
-all: demo makegen 
+all: demo Makegen 
 
 ####################DEMO####################
 
-DEMOOBJ= ./string_helper.c ./linked_list.c ./make_helper.c ./tree.c 
+DEMOOBJ= ./string_helper.o ./linked_list.o ./make_helper.o ./tree.o 
 
 DEMOLIB= -lpthread 
 
@@ -14,11 +14,11 @@ demo: $(DEMOOBJ) ($DEMOLIB)
 
 ####################MAKEGEN####################
 
-MAKEGENOBJ= ./argp_helper.c ./dot_helper.c ./file_helper.c ./string_helper.c ./linked_list.c ./make_helper.c ./tree.c 
+MAKEGENOBJ= ./argp_helper.o ./dot_helper.o ./file_helper.o ./string_helper.o ./linked_list.o ./make_helper.o ./tree.o 
 
 MAKEGENLIB= 
 
-makegen: $(MAKEGENOBJ) ($MAKEGENLIB)
+Makegen: $(MAKEGENOBJ) ($MAKEGENLIB)
 
 clean:
-	$(RM) demo demo.png makegen makegen.png *.dot *.o
+	$(RM) demo demo.png Makegen Makegen.png *.dot *.o

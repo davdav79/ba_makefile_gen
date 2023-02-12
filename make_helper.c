@@ -2,15 +2,16 @@
 #include <stdbool.h>
 
 FILE *make_init(){
+    static char * name = "Makefile_";
     const char * cmd = {"mv Makefile_ Makefile_.bak"};
     printf("moving Makefile to Makefile.bak\n");
     int status = system(cmd);
     if (status != 0) {
-        fprintf(stderr, "Error: Unable to render tree\n");
+        fprintf(stderr, "Error: Unable move Makefile to MAkefile.bak\n");
     }
-    FILE* fp = fopen("Makefile_", "w+");
+    FILE* fp = fopen(name, "w+");
     if (fp == NULL) {
-        perror("Error: ");
+        perror(name);
         return NULL;
     }
     return fp;
@@ -30,17 +31,10 @@ void make_list_node(struct list_node *make_list, struct node *node){
     while(node_list != NULL){
         for(unsigned int i=0;i<sizeof(libs)/sizeof(libs[0]);i++){
             if(strcmp(libs[i],((struct node*)node_list->data)->name) == 0){
-                if(make_list->next->data == NULL){
-                    list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));
-                    return;
-                }
-                struct node* found = find_file(libs_name[i],(struct list_node *)make_list->next->data);
-                if(found)
+                struct node* found  = find_file(libs_name[i],(struct list_node *)make_list->next->data);
                 if(found == NULL){
                     list_insert_node((struct list_node **)&make_list->next->data,new_node(libs_name[i],"",0,0));
                 }
-                    
-                
             }    
         }
         node_list = node_list->next;
@@ -118,7 +112,6 @@ void print_make_body(FILE *fp,struct list_node *make_list){
         corh++;
         if(corh % 2){
             fprintf(fp,"%s: $(%sOBJ) ($%sLIB)\n\n",name_cut,name_upper,name_upper);
-            //fprintf(fp,"%s: $(%sOBJ)\n\n",name_cut,name_upper);
         }
         list_tmp = list_tmp->next;
     }

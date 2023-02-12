@@ -6,7 +6,7 @@ all: demo makegen
 
 ####################DEMO####################
 
-DEMOOBJ= ./string_helper.c ./linked_list.c ./tree.c 
+DEMOOBJ= ./string_helper.c ./linked_list.c ./make_helper.c ./tree.c 
 
 DEMOLIB= -lpthread 
 
@@ -14,7 +14,7 @@ demo: $(DEMOOBJ) ($DEMOLIB)
 
 ####################MAKEGEN####################
 
-MAKEGENOBJ= ./argp_helper.c ./make_helper.c ./dot_helper.c ./file_helper.c ./string_helper.c ./linked_list.c ./tree.c 
+MAKEGENOBJ= ./argp_helper.c ./dot_helper.c ./file_helper.c ./string_helper.c ./linked_list.c ./make_helper.c ./tree.c 
 
 MAKEGENLIB= 
 
