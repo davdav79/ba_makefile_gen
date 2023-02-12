@@ -8,7 +8,7 @@ FILE *make_init(){
     if (status != 0) {
         fprintf(stderr, "Error: Unable to render tree\n");
     }
-    FILE* fp = fopen("Makefile_", "w+");
+    FILE* fp = fopen("Makefile", "w+");
     if (fp == NULL) {
         perror("Error: ");
         return NULL;
@@ -117,7 +117,7 @@ void print_make_body(FILE *fp,struct list_node *make_list){
         fprintf(fp,"\n\n");
         corh++;
         if(corh % 2){
-            fprintf(fp,"%s: $(%sOBJ) ($%sLIB)\n\n",name_cut,name_upper,name_upper);
+            fprintf(fp,"%s: $(%sOBJ) $(%sLIB)\n\n",name_cut,name_upper,name_upper);
             //fprintf(fp,"%s: $(%sOBJ)\n\n",name_cut,name_upper);
         }
         list_tmp = list_tmp->next;

@@ -1,21 +1,24 @@
 .DEFAULT_GOAL := all
 .PHONY: all
-CFLAGS= -W -Wall -Wextra -fstack-protector-all
+CFLAGS= -W -Wall -Wextra
 
-all: makegen
+all: demo makegen 
+
+####################DEMO####################
+
+DEMOOBJ= ./demo.o 
+
+DEMOLIB= -lpthread 
+
+demo: $(DEMOOBJ) $(DEMOLIB)
 
 ####################MAKEGEN####################
 
-MAKEGENOBJ= ./argp_helper.c ./dot_helper.c ./tree.c ./string_helper.c ./file_helper.c ./make_helper.c ./linked_list.c 
+MAKEGENOBJ= ./argp_helper.o ./dot_helper.o ./file_helper.o ./string_helper.o ./linked_list.o ./make_helper.o ./tree.o 
 
-MAKEGENDEP= ./dot_helper.h ./tree.h ./string_helper.h ./file_helper.h ./make_helper.h 
-
-MAKEGENLIB= -lpthread
+MAKEGENLIB= 
 
 makegen: $(MAKEGENOBJ) $(MAKEGENLIB)
 
 clean:
-	$(RM) main2 main3 makegen *.o *.png *.dot
-
-test: clean makegen 
-	./makegen  -p "." -c -o test_file
+	$(RM) demo demo.png makegen makegen.png *.dot *.o
